@@ -38,6 +38,7 @@ function replace_emotes(chat_msg) {
   let just_emote = emote_text == msg_strip;
   for (let i = 0; i < chat_msg.emote_names.length; i++) {
     let emote_url = "";
+    let emote_class = "emotes";
     if (
       chat_msg.animated_emote_urls[i] != "" &&
       chat_msg.animated_emote_urls.length != 0
@@ -45,11 +46,24 @@ function replace_emotes(chat_msg) {
       emote_url = chat_msg.animated_emote_urls[i];
     } else {
       emote_url = chat_msg.emote_urls[i];
+    } // Fix 7TV Emote default to 4x
+    if (emote_url.match(/7tv\.app/i)) {
+      emote_url = emote_url.replace(/4x\./, "1x.");
     }
+    // Adjust size if only emote, different for each system
     if (just_emote) {
-      emote_url = emote_url.replace(/1\.0$/, "2.0");
+      if (emote_url.match(/jtvnw\.net/i)) {
+        emote_url = emote_url.replace(/1\.0$/, "2.0");
+      } else if (emote_url.match(/betterttv\.net/i)) {
+        emote_url = emote_url.replace(/1x$/, "2x");
+      } else if (emote_url.match(/frankerfacez\.com/i)) {
+        emote_url = emote_url.replace(/1$/, "2");
+      } else if (emote_url.match(/7tv\.app/i)) {
+        emote_url = emote_url.replace(/1x\./, "2x.");
+      }
+      emote_class = "emotes-large";
     }
-    let replace_txt = `<img src="${emote_url}" class="emotes">`;
+    let replace_txt = `<img src="${emote_url}" class="${emote_class}">`;
     return_str = return_str.replace(chat_msg.emote_names[i], replace_txt);
   }
   return return_str;

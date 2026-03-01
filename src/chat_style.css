@@ -79,6 +79,13 @@ p {
     vertical-align: middle;
 }
 
+.emotes-large {
+    width: 64px;
+    height: 64px;
+    display: inline flow;
+    vertical-align: bottom;
+}
+
 p.slash_me {
     font-style: italic;
 }
