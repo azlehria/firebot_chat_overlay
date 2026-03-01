@@ -1,6 +1,7 @@
 const websocketURL = "ws://localhost:7472";
 const messageDisplayTime = 600; // Number of seconds to display a chat message before deleting it, set to 0 for permanent messages
 const messageFadeOut = true;
+const messageNewAtTop = true;
 const debug = false;
 
 function fade(element) {
@@ -102,7 +103,12 @@ function add_chat_msg(chat_msg) {
   text_div.appendChild(text_p);
   msg_div.appendChild(text_div);
   // Finally add the message to the overlay
-  overlay.appendChild(msg_div);
+  if (messageNewAtTop === true) {
+    let first_message = overlay.getElementsByClassName("chat_message")[0];
+    overlay.insertBefore(msg_div, first_message);
+  } else {
+    overlay.append(msg_div);
+  }
 }
 
 function clear_out_of_bounds() {
@@ -112,7 +118,11 @@ function clear_out_of_bounds() {
   if (chat_overlay.getBoundingClientRect().y < 0) {
     console.log(chat_overlay.getBoundingClientRect().y);
     let chat_messages = chat_overlay.getElementsByClassName("chat_message");
-    chat_overlay.removeChild(chat_messages[0]);
+    if (messageNewAtTop === true) {
+      chat_overlay.removeChild(chat_messages[chat_messages.length - 1]);
+    } else {
+      chat_overlay.removeChild(chat_messages[0]);
+    }
     // Check again, just in case a couple of messages have tripped over
     clear_out_of_bounds();
   }
@@ -211,4 +221,19 @@ function connect() {
   };
 }
 
-connect();
+function initialize() {
+  // Anchor messages to top if set
+  if (messageNewAtTop === true) {
+    const css_rules = document.styleSheets[0].cssRules;
+    for (let i = 0; i < css_rules.length; i++) {
+      if (css_rules[i].selectorText === "#chat_overlay") {
+        css_rules[i].style.bottom = "";
+        css_rules[i].style.top = "10px";
+        break;
+      }
+    }
+  }
+  connect();
+}
+
+initialize();
