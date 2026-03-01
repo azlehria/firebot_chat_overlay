@@ -45,18 +45,11 @@ function replace_emotes(chat_msg) {
   let msg_strip = return_str.replace(/ /g, "");
   let just_emote = emote_text == msg_strip;
   for (let i = 0; i < chat_msg.emote_names.length; i++) {
-    let emote_url = "";
+    let emote_url = chat_msg.animated_emote_urls[i] || chat_msg.emote_urls[i];
     let emote_class = "emotes";
-    if (
-      chat_msg.animated_emote_urls[i] != "" &&
-      chat_msg.animated_emote_urls.length != 0
-    ) {
-      emote_url = chat_msg.animated_emote_urls[i];
-    } else {
-      emote_url = chat_msg.emote_urls[i];
-    } // Fix 7TV Emote default to 4x
+    // Fix 7TV Emote default to 4x, enlarge if only emote
     if (emote_url.match(/7tv\.app/i)) {
-      emote_url = emote_url.replace(/4x\./, "1x.");
+      emote_url = emote_url.replace(/[14]x\./, just_emote ? "1x." : "2x.");
     }
     // Adjust size if only emote, different for each system
     if (just_emote) {
@@ -66,8 +59,6 @@ function replace_emotes(chat_msg) {
         emote_url = emote_url.replace(/1x$/, "2x");
       } else if (emote_url.match(/frankerfacez\.com/i)) {
         emote_url = emote_url.replace(/1$/, "2");
-      } else if (emote_url.match(/7tv\.app/i)) {
-        emote_url = emote_url.replace(/1x\./, "2x.");
       }
       emote_class = "emotes-large";
     }
@@ -151,7 +142,7 @@ function clear_out_of_bounds() {
   // Clear a message that has gone past the top boundary so we don't have half
   // the characters dangling off the top of the overlay
   let chat_overlay = document.getElementById("chat_overlay");
-  if (chat_overlay.getBoundingClientRect().y < 0) {
+  while (chat_overlay.getBoundingClientRect().y < 0) {
     console.log(chat_overlay.getBoundingClientRect().y);
     let chat_messages = chat_overlay.getElementsByClassName("chat_message");
     if (messageNewAtTop === true) {
@@ -159,8 +150,6 @@ function clear_out_of_bounds() {
     } else {
       chat_overlay.removeChild(chat_messages[0]);
     }
-    // Check again, just in case a couple of messages have tripped over
-    clear_out_of_bounds();
   }
 }
 
