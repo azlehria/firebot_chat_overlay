@@ -13,30 +13,30 @@ const replacementFilters = {
 };
 
 function fade(element) {
-  let opacity = Number(
+  element.style.opacity = Number(
     window.getComputedStyle(element).getPropertyValue("opacity"),
   );
-  let timer = setInterval(function () {
-    if (opacity <= 0.1) {
+  element.fade_timer = setInterval(function () {
+    if (element.style.opacity <= 0.1) {
+      clearInterval(element.fade_timer);
       element.remove();
-      clearInterval(timer);
     } else {
-      opacity = opacity - 0.1;
-      element.style.opacity = opacity;
+      element.style.opacity = element.style.opacity - 0.1;
     }
   }, 50);
 }
 
-async function timeout_message(chat_msg) {
+function timeout_message(chat_msg) {
   // wait for an amount of time before removing
   const timeout_period = messageDisplayTime * 1000;
-  await new Promise((r) => setTimeout(r, timeout_period));
-  let msg_div = document.getElementById(chat_msg.id);
-  if (messageFadeOut === true) {
-    fade(msg_div);
-  } else {
-    msg_div.remove();
-  }
+  const msg_div = document.getElementById(chat_msg.id);
+  msg_div.timeout_timer = setTimeout(function () {
+    if (messageFadeOut === true) {
+      fade(msg_div);
+    } else {
+      msg_div.remove();
+    }
+  }, timeout_period);
 }
 
 function replace_emotes(chat_msg) {
@@ -138,18 +138,28 @@ function add_chat_msg(chat_msg) {
   }
 }
 
+function clear_timers(element) {
+  if (typeof element.timeout_timer === "number") {
+    clearTimeout(element.timeout_timer);
+  }
+  if (typeof element.fade_timer === "number") {
+    clearInterval(element.fade_timer);
+  }
+}
+
 function clear_out_of_bounds() {
   // Clear a message that has gone past the top boundary so we don't have half
   // the characters dangling off the top of the overlay
-  let chat_overlay = document.getElementById("chat_overlay");
+  const chat_overlay = document.getElementById("chat_overlay");
   while (chat_overlay.getBoundingClientRect().y < 0) {
     console.log(chat_overlay.getBoundingClientRect().y);
-    let chat_messages = chat_overlay.getElementsByClassName("chat_message");
-    if (messageNewAtTop === true) {
-      chat_overlay.removeChild(chat_messages[chat_messages.length - 1]);
-    } else {
-      chat_overlay.removeChild(chat_messages[0]);
-    }
+    const chat_messages = chat_overlay.getElementsByClassName("chat_message");
+    const msg =
+      messageNewAtTop === true
+        ? chat_messages[chat_messages.length - 1]
+        : chat_messages[0];
+    clear_timers(msg);
+    msg.remove();
   }
 }
 
@@ -170,7 +180,12 @@ function delete_user_messages(chat_msg) {
 }
 
 function clear_chat() {
-  document.getElementById("chat_overlay").innerHTML = "";
+  const chat_overlay = document.getElementById("chat_overlay");
+  const chat_messages = chat_overlay.getElementsByClassName("chat_message");
+  for (const chat of chat_messages) {
+    clear_timers(chat);
+  }
+  chat_overlay.replaceChildren();
 }
 
 function delete_individual_message(chat_msg) {
