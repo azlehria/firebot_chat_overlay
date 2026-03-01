@@ -29,7 +29,7 @@
                   "type": "firebot:send-custom-websocket-event",
                   "active": true,
                   "eventName": "chat_overlay_msg",
-                  "eventData": "{\n  \"id\": \"$chatMessageId\",\n  \"badges\": $userBadgeUrls,\n  \"color\": \"$chatUserColor\",\n  \"display-name\": \"$userDisplayName\",\n  \"pronouns\": \"$pronouns[$userDisplayName, 0, ]\",\n  \"msg_text\": \"$convertToJSON[$chatMessage]\",\n  \"emote_names\": $chatMessageEmoteNames,\n  \"emote_urls\": $chatMessageEmoteUrls,\n  \"animated_emote_urls\": $chatMessageAnimatedEmoteUrls\n} ",
+                  "eventData": "{\n  \"id\": \"$chatMessageId\",\n  \"badges\": $userBadgeUrls,\n  \"color\": \"$chatUserColor\",\n  \"display-name\": \"$userDisplayName\",\n  \"pronouns\": \"$pronouns[$userDisplayName, 0, ]\",\n  \"msg_text\": $convertToJSON[$chatMessage],\n  \"emote_names\": $chatMessageEmoteNames,\n  \"emote_urls\": $chatMessageEmoteUrls,\n  \"animated_emote_urls\": $chatMessageAnimatedEmoteUrls\n} ",
                   "percentWeight": null
                 }
               ],
