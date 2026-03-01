@@ -96,43 +96,40 @@ function add_chat_msg(chat_msg) {
   badges_div.className = "chat_badges";
   for (const badge_url of chat_msg.badges) {
     const badge_img = document.createElement("img");
-    badge_img.setAttribute("src", badge_url);
-    badge_img.setAttribute("class", "chat_badges");
-    badges_div.appendChild(badge_img);
+    badge_img.src = badge_url;
+    badge_img.className = "chat_badges";
+    badges_div.append(badge_img);
   }
-  user_div.appendChild(badges_div);
+  user_div.append(badges_div);
   // Add the Username
   const name_p = document.createElement("p");
   name_p.className = "display_name";
   name_p.style = `color:${chat_msg.color}`;
-  const name_text = document.createTextNode(`${chat_msg["display-name"]}`);
-  name_p.appendChild(name_text);
-  user_div.appendChild(name_p);
+  name_p.append(`${chat_msg["display-name"]}`);
+  user_div.append(name_p);
   // Add pronouns
   const pronoun_p = document.createElement("p");
   pronoun_p.className = "pronoun_tag";
-  const pronoun_text = document.createTextNode(chat_msg.pronouns);
-  pronoun_p.appendChild(pronoun_text);
-  user_div.appendChild(pronoun_p);
-  msg_div.appendChild(user_div);
+  pronoun_p.append(chat_msg.pronouns);
+  user_div.append(pronoun_p);
+  msg_div.append(user_div);
   // Main message text
   const text_div = document.createElement("div");
   text_div.className = "msg_text";
   const text_p = document.createElement("p");
   let msg_text = apply_chat_filters(chat_msg);
+  text_p.className = "msg_text";
+  // Format /me actions
   if (msg_text.includes("ACTION")) {
-    text_p.className = "msg_text slash_me";
+    text_p.classList.add("slash_me");
     msg_text = msg_text.slice(7, -1);
-  } else {
-    text_p.className = "msg_text";
   }
   text_p.innerHTML = msg_text;
-  text_div.appendChild(text_p);
-  msg_div.appendChild(text_div);
+  text_div.append(text_p);
+  msg_div.append(text_div);
   // Finally add the message to the overlay
   if (messageNewAtTop === true) {
-    const first_message = overlay.getElementsByClassName("chat_message")[0];
-    overlay.insertBefore(msg_div, first_message);
+    overlay.insertBefore(msg_div, overlay.firstChild);
   } else {
     overlay.append(msg_div);
   }
