@@ -41,9 +41,9 @@ function timeout_message(chat_msg) {
 
 function replace_emotes(chat_msg) {
   let return_str = chat_msg.msg_text;
-  let emote_text = chat_msg.emote_names.join("");
-  let msg_strip = return_str.replace(/ /g, "");
-  let just_emote = emote_text == msg_strip;
+  const emote_text = chat_msg.emote_names.join("");
+  const msg_strip = return_str.replace(/ /g, "");
+  const just_emote = emote_text == msg_strip;
   for (let i = 0; i < chat_msg.emote_names.length; i++) {
     let emote_url = chat_msg.animated_emote_urls[i] || chat_msg.emote_urls[i];
     let emote_class = "emotes";
@@ -84,41 +84,41 @@ function apply_chat_filters(chat_msg) {
 
 function add_chat_msg(chat_msg) {
   // Start with getting the overlay
-  let overlay = document.getElementById("chat_overlay");
+  const overlay = document.getElementById("chat_overlay");
   // Create the overall containing div
-  let msg_div = document.createElement("div");
+  const msg_div = document.createElement("div");
   msg_div.id = chat_msg.id;
   msg_div.className = `chat_message ${chat_msg.id}`;
-  let user_div = document.createElement("div");
+  const user_div = document.createElement("div");
   user_div.className = "user_details";
   // Add badges
-  let badges_div = document.createElement("div");
+  const badges_div = document.createElement("div");
   badges_div.className = "chat_badges";
-  for (let badge_url of chat_msg.badges) {
-    let badge_img = document.createElement("img");
+  for (const badge_url of chat_msg.badges) {
+    const badge_img = document.createElement("img");
     badge_img.setAttribute("src", badge_url);
     badge_img.setAttribute("class", "chat_badges");
     badges_div.appendChild(badge_img);
   }
   user_div.appendChild(badges_div);
   // Add the Username
-  let name_p = document.createElement("p");
+  const name_p = document.createElement("p");
   name_p.className = "display_name";
   name_p.style = `color:${chat_msg.color}`;
-  let name_text = document.createTextNode(`${chat_msg["display-name"]}`);
+  const name_text = document.createTextNode(`${chat_msg["display-name"]}`);
   name_p.appendChild(name_text);
   user_div.appendChild(name_p);
   // Add pronouns
-  let pronoun_p = document.createElement("p");
+  const pronoun_p = document.createElement("p");
   pronoun_p.className = "pronoun_tag";
-  let pronoun_text = document.createTextNode(chat_msg.pronouns);
+  const pronoun_text = document.createTextNode(chat_msg.pronouns);
   pronoun_p.appendChild(pronoun_text);
   user_div.appendChild(pronoun_p);
   msg_div.appendChild(user_div);
   // Main message text
-  let text_div = document.createElement("div");
+  const text_div = document.createElement("div");
   text_div.className = "msg_text";
-  let text_p = document.createElement("p");
+  const text_p = document.createElement("p");
   let msg_text = apply_chat_filters(chat_msg);
   if (msg_text.includes("ACTION")) {
     text_p.className = "msg_text slash_me";
@@ -131,7 +131,7 @@ function add_chat_msg(chat_msg) {
   msg_div.appendChild(text_div);
   // Finally add the message to the overlay
   if (messageNewAtTop === true) {
-    let first_message = overlay.getElementsByClassName("chat_message")[0];
+    const first_message = overlay.getElementsByClassName("chat_message")[0];
     overlay.insertBefore(msg_div, first_message);
   } else {
     overlay.append(msg_div);
@@ -167,14 +167,14 @@ function delete_user_messages(chat_msg) {
   // Clear all the chat messages, or all message from a user
   // A user has been banned or timed out
   console.log(`Trying to remove messages for ${chat_msg.username}`);
-  let remove_chats = [];
-  let chats = document.getElementsByClassName("display_name");
-  for (let chat of chats) {
+  const remove_chats = [];
+  const chats = document.getElementsByClassName("display_name");
+  for (const chat of chats) {
     if (chat.textContent == chat_msg.username) {
       remove_chats.push(chat.parentNode.parentNode);
     }
   }
-  for (let chat of remove_chats) {
+  for (const chat of remove_chats) {
     chat.remove();
   }
 }
@@ -195,7 +195,7 @@ function delete_individual_message(chat_msg) {
 
 function msg_handler(msg) {
   // Main message handler function called from the Websockets client
-  let ws_msg = JSON.parse(msg.data);
+  const ws_msg = JSON.parse(msg.data);
   if (debug === true) {
     console.log("[message] ws_msg received from server:");
     console.log(ws_msg);
@@ -224,7 +224,7 @@ function msg_handler(msg) {
 function connect() {
   // Connect to the local Websocket server and register the
   // callback functions
-  let socket = new WebSocket(websocketURL);
+  const socket = new WebSocket(websocketURL);
   // Inline function to register and log on open
   socket.onopen = function (e) {
     console.log("[open] Connection established");
