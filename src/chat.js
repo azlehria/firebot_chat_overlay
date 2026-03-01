@@ -77,8 +77,8 @@ function replace_text(chat_msg) {
 }
 
 function apply_chat_filters(chat_msg) {
-  let return_str = replace_emotes(chat_msg);
-  return_str = replace_text(return_str);
+  chat_msg.msg_text = replace_text(chat_msg.msg_text);
+  const return_str = replace_emotes(chat_msg);
   return return_str;
 }
 
