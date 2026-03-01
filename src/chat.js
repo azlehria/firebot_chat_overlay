@@ -4,6 +4,14 @@ const messageFadeOut = true;
 const messageNewAtTop = true;
 const debug = false;
 
+const replacementFilters = {
+  "&": "&amp;",
+  "<": "&lt",
+  ">": "&gt",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
 function fade(element) {
   let opacity = Number(
     window.getComputedStyle(element).getPropertyValue("opacity"),
@@ -69,6 +77,20 @@ function replace_emotes(chat_msg) {
   return return_str;
 }
 
+function replace_text(chat_msg) {
+  let return_str = chat_msg;
+  for (const [key, val] of Object.entries(replacementFilters)) {
+    return_str = return_str.replace(key, val);
+  }
+  return return_str;
+}
+
+function apply_chat_filters(chat_msg) {
+  let return_str = replace_emotes(chat_msg);
+  return_str = replace_text(return_str);
+  return return_str;
+}
+
 function add_chat_msg(chat_msg) {
   // Start with getting the overlay
   let overlay = document.getElementById("chat_overlay");
@@ -106,7 +128,7 @@ function add_chat_msg(chat_msg) {
   let text_div = document.createElement("div");
   text_div.className = "msg_text";
   let text_p = document.createElement("p");
-  let msg_text = replace_emotes(chat_msg);
+  let msg_text = apply_chat_filters(chat_msg);
   if (msg_text.includes("ACTION")) {
     text_p.className = "msg_text slash_me";
     msg_text = msg_text.slice(7, -1);
