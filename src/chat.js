@@ -41,26 +41,28 @@ function timeout_message(chat_msg) {
 
 function replace_emotes(chat_msg) {
   let return_str = chat_msg.msg_text;
-  const emote_text = chat_msg.emote_names.join("");
-  const msg_strip = return_str.replace(/ /g, "");
-  const just_emote = emote_text == msg_strip;
+  const emote_text = chat_msg.emote_names.join(" ");
+  const just_emote = emote_text === return_str;
+  const emote_class = just_emote ? "emotes-large" : "emotes";
   for (let i = 0; i < chat_msg.emote_names.length; i++) {
     let emote_url = chat_msg.animated_emote_urls[i] || chat_msg.emote_urls[i];
-    let emote_class = "emotes";
-    // Fix 7TV Emote default to 4x, enlarge if only emote
-    if (emote_url.match(/7tv\.app/i)) {
-      emote_url = emote_url.replace(/[14]x\./, just_emote ? "1x." : "2x.");
-    }
     // Adjust size if only emote, different for each system
-    if (just_emote) {
-      if (emote_url.match(/jtvnw\.net/i)) {
-        emote_url = emote_url.replace(/1\.0$/, "2.0");
-      } else if (emote_url.match(/betterttv\.net/i)) {
-        emote_url = emote_url.replace(/1x$/, "2x");
-      } else if (emote_url.match(/frankerfacez\.com/i)) {
-        emote_url = emote_url.replace(/1$/, "2");
+    if (emote_url.toLowerCase().includes("7tv.app")) {
+      // Fix 7TV Emote defaulting to 4x
+      let index = emote_url.indexOf("4x.");
+      if (index === -1) {
+        index = emote_url.indexOf("1x.");
       }
-      emote_class = "emotes-large";
+      emote_url =
+        emote_url.slice(0, index) +
+        (just_emote ? "2x." : "1x.") +
+        emote_url.slice(index + 3);
+    } else if (emote_url.toLowerCase().includes("jtvnw.net")) {
+      emote_url = emote_url.slice(0, -3) + (just_emote ? "2.0" : "1.0");
+    } else if (emote_url.toLowerCase().includes("betterttv.net")) {
+      emote_url = emote_url.slice(0, -2) + (just_emote ? "2x" : "1x");
+    } else if (emote_url.toLowerCase().includes("frankerfacez.com")) {
+      emote_url = emote_url.slice(0, -1) + (just_emote ? "2" : "1");
     }
     let replace_txt = `<img src="${emote_url}" class="${emote_class}">`;
     return_str = return_str.replace(chat_msg.emote_names[i], replace_txt);
@@ -167,7 +169,7 @@ function delete_user_messages(chat_msg) {
   const remove_chats = [];
   const chats = document.getElementsByClassName("display_name");
   for (const chat of chats) {
-    if (chat.textContent == chat_msg.username) {
+    if (chat.textContent === chat_msg.username) {
       remove_chats.push(chat.parentNode.parentNode);
     }
   }
