@@ -12,6 +12,10 @@ const replacementFilters = {
   "'": "&#39;",
 };
 
+// Config ABOVE this line
+const timeout_period = messageDisplayTime * 1000; // Convert seconds to milliseconds
+const overlay = document.getElementById("chat_overlay"); // Element should never change
+
 function fade(element) {
   element.style.opacity = Number(
     window.getComputedStyle(element).getPropertyValue("opacity"),
@@ -28,7 +32,6 @@ function fade(element) {
 
 function timeout_message(chat_msg) {
   // wait for an amount of time before removing
-  const timeout_period = messageDisplayTime * 1000;
   const msg_div = document.getElementById(chat_msg.id);
   msg_div.timeout_timer = setTimeout(function () {
     if (messageFadeOut === true) {
@@ -85,8 +88,6 @@ function apply_chat_filters(chat_msg) {
 }
 
 function add_chat_msg(chat_msg) {
-  // Start with getting the overlay
-  const overlay = document.getElementById("chat_overlay");
   // Create the overall containing div
   const msg_div = document.createElement("div");
   msg_div.id = chat_msg.id;
@@ -149,10 +150,9 @@ function clear_timers(element) {
 function clear_out_of_bounds() {
   // Clear a message that has gone past the top boundary so we don't have half
   // the characters dangling off the top of the overlay
-  const chat_overlay = document.getElementById("chat_overlay");
-  while (chat_overlay.getBoundingClientRect().y < 0) {
-    console.log(chat_overlay.getBoundingClientRect().y);
-    const chat_messages = chat_overlay.getElementsByClassName("chat_message");
+  while (overlay.getBoundingClientRect().y < 0) {
+    console.log(overlay.getBoundingClientRect().y);
+    const chat_messages = overlay.getElementsByClassName("chat_message");
     const msg =
       messageNewAtTop === true
         ? chat_messages[chat_messages.length - 1]
@@ -173,18 +173,17 @@ function delete_user_messages(chat_msg) {
       remove_chats.push(chat.parentNode.parentNode);
     }
   }
-  for (const chat of remove_chats) {
+  for (const chat of remove_chats.reverse()) {
     chat.remove();
   }
 }
 
 function clear_chat() {
-  const chat_overlay = document.getElementById("chat_overlay");
-  const chat_messages = chat_overlay.getElementsByClassName("chat_message");
+  const chat_messages = overlay.getElementsByClassName("chat_message");
   for (const chat of chat_messages) {
     clear_timers(chat);
   }
-  chat_overlay.replaceChildren();
+  overlay.replaceChildren();
 }
 
 function delete_individual_message(chat_msg) {
