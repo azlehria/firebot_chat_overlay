@@ -144,10 +144,10 @@ function add_chat_msg(chat_msg) {
 }
 
 function clear_timers(element) {
-  if (typeof element.timeout_timer === "number") {
+  if (typeof element?.timeout_timer === "number") {
     clearTimeout(element.timeout_timer);
   }
-  if (typeof element.fade_timer === "number") {
+  if (typeof element?.fade_timer === "number") {
     clearInterval(element.fade_timer);
   }
 }
@@ -179,7 +179,8 @@ function delete_user_messages(chat_msg) {
     }
   }
   for (const chat of remove_chats.reverse()) {
-    chat.remove();
+    clear_timers(msg);
+    chat?.remove();
   }
 }
 
@@ -193,7 +194,7 @@ function clear_chat() {
 
 function delete_individual_message(chat_msg) {
   // Find a message and delete it
-  document.getElementById(chat_msg.message_id).remove();
+  document.getElementById(chat_msg.message_id)?.remove();
 }
 
 function msg_handler(msg) {
@@ -241,22 +242,22 @@ function connect() {
   // Inline function to deal with on close events and reconnect if not clean
   socket.onclose = function (event) {
     if (event.wasClean) {
-      console.log(`[close] Connection closed cleanly,
-                        code=${event.code} reason=${event.reason}`);
+      console.groupCollapsed("[close] Connection closed cleanly");
+      console.debug(`code=${event.code} reason=${event.reason}`);
+      console.groupEnd();
     } else {
       // e.g. server process killed or network down
       // event.code is usually 1006 in this case
       // Sleep for 5 seconds and try again
-      console.log(`[close] Connection died code=${event.code}
-                        reason=${event.reason}`);
-      setTimeout(function () {
-        connect();
-      }, 5000);
+      console.groupCollapsed("[close] Connection died");
+      console.debug(`code=${event.code} reason=${event.reason}`);
+      console.groupEnd();
+      setTimeout(connect, 5000);
     }
   };
   // Inline function for logging erros
   socket.onerror = function (error) {
-    console.log(`[error] ${error.message}`);
+    console.error(`[error] ${error.message}`);
   };
 }
 
