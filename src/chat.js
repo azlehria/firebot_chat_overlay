@@ -15,29 +15,35 @@ const replacementFilters = {
 // Config ABOVE this line
 const timeout_period = messageDisplayTime * 1000; // Convert seconds to milliseconds
 const overlay = document.getElementById("chat_overlay"); // Element should never change
+const clear_observer = new ResizeObserver(() => {
+  clear_out_of_bounds();
+});
 
 function fade(element) {
+  if (!element) {
+    return;
+  }
   element.style.opacity = Number(
     window.getComputedStyle(element).getPropertyValue("opacity"),
   );
   element.fade_timer = setInterval(function () {
-    if (element.style.opacity <= 0.1) {
-      clearInterval(element.fade_timer);
-      element.remove();
+    if (element?.style.opacity <= 0.1) {
+      clear_timers(element);
+      element?.remove();
     } else {
-      element.style.opacity = element.style.opacity - 0.1;
+      element.style.opacity -= 0.1;
     }
   }, 50);
 }
 
-function timeout_message(chat_msg) {
+function add_display_timeout(element) {
   // wait for an amount of time before removing
-  const msg_div = document.getElementById(chat_msg.id);
-  msg_div.timeout_timer = setTimeout(function () {
+  element.timeout_timer = setTimeout(function () {
     if (messageFadeOut === true) {
-      fade(msg_div);
+      fade(element);
     } else {
-      msg_div.remove();
+      clear_timers(element);
+      element?.remove();
     }
   }, timeout_period);
 }
@@ -130,12 +136,11 @@ function add_chat_msg(chat_msg) {
   text_p.innerHTML = msg_text;
   text_div.append(text_p);
   msg_div.append(text_div);
-  // Finally add the message to the overlay
-  if (messageNewAtTop === true) {
-    overlay.insertBefore(msg_div, overlay.firstChild);
-  } else {
-    overlay.append(msg_div);
+  if (timeout_period > 0) {
+    add_display_timeout(msg_div);
   }
+  // Finally add the message to the overlay
+  overlay.append(msg_div);
 }
 
 function clear_timers(element) {
@@ -148,17 +153,17 @@ function clear_timers(element) {
 }
 
 function clear_out_of_bounds() {
-  // Clear a message that has gone past the top boundary so we don't have half
-  // the characters dangling off the top of the overlay
-  while (overlay.getBoundingClientRect().y < 0) {
-    console.log(overlay.getBoundingClientRect().y);
-    const chat_messages = overlay.getElementsByClassName("chat_message");
-    const msg =
-      messageNewAtTop === true
-        ? chat_messages[chat_messages.length - 1]
-        : chat_messages[0];
-    clear_timers(msg);
-    msg.remove();
+  // Clear a message that has gone past the vertical boundary so we don't have half
+  // the characters dangling off the top/bottom of the overlay
+  while (
+    overlay.lastElementChild?.offsetTop > overlay.offsetHeight ||
+    overlay.lastElementChild?.offsetTop < 0
+  ) {
+    if (debug === true) {
+      console.log(overlay.getBoundingClientRect().y);
+    }
+    clear_timers(overlay.firstElementChild);
+    overlay.firstElementChild?.remove();
   }
 }
 
@@ -201,10 +206,6 @@ function msg_handler(msg) {
   switch (ws_msg.name) {
     case "custom-event:chat_overlay_msg":
       add_chat_msg(ws_msg.data);
-      clear_out_of_bounds();
-      if (messageDisplayTime > 0) {
-        timeout_message(ws_msg.data);
-      }
       break;
     case "custom-event:chat_overlay_clear":
       clear_chat();
@@ -263,14 +264,16 @@ function initialize() {
   // Anchor messages to top if set
   if (messageNewAtTop === true) {
     const css_rules = document.styleSheets[0].cssRules;
-    for (let i = 0; i < css_rules.length; i++) {
-      if (css_rules[i].selectorText === "#chat_overlay") {
-        css_rules[i].style.bottom = "";
-        css_rules[i].style.top = "10px";
+    for (const rule of css_rules) {
+      if (rule.selectorText === "#chat_overlay") {
+        rule.style.flexFlow = "column-reverse nowrap";
+        rule.style.bottom = "";
+        rule.style.top = "10px";
         break;
       }
     }
   }
+  clear_observer.observe(overlay);
   connect();
 }
 

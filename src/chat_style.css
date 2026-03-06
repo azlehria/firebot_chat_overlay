@@ -13,6 +13,11 @@ p {
     position: absolute;
     bottom: 10px;
     width: 98%;
+    max-height: 98%;
+
+    display: flex;
+    flex-flow: column nowrap;
+    overflow: hidden;
 }
 
 .chat_message {
